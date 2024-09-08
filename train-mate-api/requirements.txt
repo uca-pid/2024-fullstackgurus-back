@@ -149,7 +149,7 @@ pooch==1.8.0
 preshed==3.0.8
 prompt-toolkit==3.0.37
 proto-plus==1.24.0
-protobuf==5.28.0
+protobuf>=3.20.2,<6.0
 psutil==5.9.4
 ptyprocess==0.7.0
 pure-eval==0.2.2
