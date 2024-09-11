@@ -5,11 +5,7 @@ from flask_cors import CORS
 def create_app():
     app = Flask(__name__)
 
-    # Permitir CORS desde cualquier origen
     CORS(app)
-
-    # O para permitir específicamente solicitudes desde 'http://localhost:3000':
-    # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
     @app.route('/')
     def home():
