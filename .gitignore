@@ -20,3 +20,6 @@ SqueakDebug.log
 # Metacello-github cache
 /github-cache
 github-*.zip
+
+# Ignorar el archivo de credenciales de Firebase
+trainmate-7ae2b-firebase-adminsdk-z5wai-0abc5797e2.json

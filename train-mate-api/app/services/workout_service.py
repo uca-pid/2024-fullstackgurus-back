@@ -12,6 +12,11 @@ def save_user_workout(uid, data):
     
     calories = calculate_calories(data['exercise'], data['duration'], user_info['weight'])
 
+    user_ref = db.collection('workouts').document(uid)
+    user_doc = user_ref.get()
+
+    if not user_doc.exists:
+        user_ref.set({})
 
     # Reference to the user's workouts subcollection
     user_workouts_ref = db.collection('workouts').document(uid).collection('user_workouts')
@@ -60,7 +65,7 @@ MET_VALUES = {
     'Cycling': 10.0,
     'Swimming': 7.0,
     'Football': 7.0,
-    'BASKETBALL': 8.0,
+    'Basketball': 8.0,
     'Tennis': 4.0,
 
 }
