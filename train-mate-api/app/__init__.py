@@ -1,8 +1,11 @@
 # app/__init__.py
 from flask import Flask
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
+
+    CORS(app)
 
     # Importar y registrar los blueprints (controladores)
     from app.controllers.user_controller import user_bp
