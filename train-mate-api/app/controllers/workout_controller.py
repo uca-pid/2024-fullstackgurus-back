@@ -58,6 +58,7 @@ def get_workouts():
         print(e)
         return jsonify({'error': 'Algo salió mal'}), 500
 
+
 @workout_bp.route('/get-workouts-calories', methods=['GET'])
 def get_workouts_calories():
     try:
@@ -71,10 +72,15 @@ def get_workouts_calories():
         # Get all workouts for the user
         workouts_calories, workouts_dates = get_user_calories_from_workouts(uid)
 
-        # Return the list of workouts
+        # Combinar las fechas y calorías en una lista de objetos
+        workouts_calories_and_dates = [
+            {"date": date, "calories": calories}
+            for date, calories in zip(workouts_dates, workouts_calories)
+        ]
+
+        # Return the combined list of workouts
         return jsonify({
-            'workouts_calories': workouts_calories,
-            'workouts_dates': workouts_dates
+            'workouts_calories_and_dates': workouts_calories_and_dates
         }), 200
 
     except Exception as e:
