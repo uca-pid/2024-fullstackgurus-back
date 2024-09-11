@@ -7,6 +7,10 @@ def create_app():
 
     CORS(app)
 
+    @app.route('/')
+    def home():
+        return '¡Bienvenido a la API de TrainMate!'
+
     # Importar y registrar los blueprints (controladores)
     from app.controllers.user_controller import user_bp
     app.register_blueprint(user_bp)
