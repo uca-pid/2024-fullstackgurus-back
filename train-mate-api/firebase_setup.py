@@ -1,10 +1,26 @@
-# firebase_setup.py
 import firebase_admin
 from firebase_admin import credentials, firestore
+import os
+import json
 
-# Inicializar Firebase con tus credenciales
-cred = credentials.Certificate("./trainmate-7ae2b-firebase-adminsdk-z5wai-314a13b3af.json")
-firebase_admin.initialize_app(cred)
+# Try to load environment variables from a .env file (for local development)
+from dotenv import load_dotenv
 
-# Inicializar Firestore
-db = firestore.client()
+# Load .env only if it exists (safe for Render which does not use .env)
+load_dotenv()
+
+# Load Firebase credentials from environment variable
+firebase_creds_json = os.getenv('FIREBASE_CREDENTIALS')
+
+if firebase_creds_json:
+    # Parse the JSON string (from the environment variable)
+    firebase_creds_dict = json.loads(firebase_creds_json)
+
+    # Initialize Firebase with the credentials loaded from environment variables
+    cred = credentials.Certificate(firebase_creds_dict)
+    firebase_admin.initialize_app(cred)
+
+    # Initialize Firestore
+    db = firestore.client()
+else:
+    raise Exception("FIREBASE_CREDENTIALS environment variable not set.")
