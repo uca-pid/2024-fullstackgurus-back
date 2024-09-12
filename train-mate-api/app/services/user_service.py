@@ -29,6 +29,12 @@ def get_user_info_service(uid):
 
 def update_user_info_service(uid, data):
     user_ref = db.collection('users').document(uid)
+    user_doc = user_ref.get()
+
+    if not user_doc.exists:
+        print(f"Usuario con UID {uid} no encontrado. Creando un nuevo usuario...")
+        save_user_info_service(uid, data)
+        return
 
     update_data = {}
     
