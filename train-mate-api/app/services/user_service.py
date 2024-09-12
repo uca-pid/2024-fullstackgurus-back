@@ -12,10 +12,12 @@ def verify_token_service(token):
 def save_user_info_service(uid, data):
     user_ref = db.collection('users').document(uid)
     user_ref.set({
-        'fullName': data['full_name'],
-        'gender': data['gender'],
+        'email': data['email'],
+        'fullName': data['name'],
+        'gender': data['sex'],
         'weight': data['weight'],
-        'height': data['height']
+        'height': data['height'],
+        'birthday': data['birthday']
     })
 
 def get_user_info_service(uid):
