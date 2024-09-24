@@ -23,3 +23,4 @@ github-*.zip
 
 # Ignorar el archivo de credenciales de Firebase
 trainmate-7ae2b-firebase-adminsdk-z5wai-314a13b3af.json
+.env
