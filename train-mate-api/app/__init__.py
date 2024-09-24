@@ -1,5 +1,5 @@
 # app/__init__.py
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 
 def create_app():
@@ -10,6 +10,12 @@ def create_app():
     @app.route('/')
     def home():
         return '¡Bienvenido a la API de TrainMate!'
+    
+    @app.route('/healthCheck')
+    def check():
+        return jsonify({
+            'api': 'All is up working!'
+        }), 200
 
     # Importar y registrar los blueprints (controladores)
     from app.controllers.user_controller import user_bp
