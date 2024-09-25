@@ -46,7 +46,13 @@ def get_user_info_service(uid):
     if user_doc.exists:
         return user_doc.to_dict()
     else:
-        return None
+        print(f"Usuario con UID {uid} no encontrado. Creando un nuevo usuario...")
+        user = auth.get_user(uid)
+        email = user.email
+        save_user_info_service(uid, {'email': email})
+        user_ref = db.collection('users').document(uid)
+        user_doc = user_ref.get()
+        return user_doc.to_dict()
 
 def update_user_info_service(uid, data):
     user_ref = db.collection('users').document(uid)
@@ -70,6 +76,9 @@ def update_user_info_service(uid, data):
     
     if 'height' in data and data['height'] is not None:
         update_data['height'] = data['height']
+
+    if 'birthday' in data and data['birthday'] is not None:
+        update_data['birthday'] = data['birthday']
 
     if update_data:
         user_ref.update(update_data)
