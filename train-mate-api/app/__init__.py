@@ -27,4 +27,7 @@ def create_app():
     from app.controllers.excercise_controller import exercise_bp
     app.register_blueprint(exercise_bp, url_prefix='/api/exercise')
 
+    from app.controllers.categoy_controller import category_bp
+    app.register_blueprint(category_bp, url_prefix='/api/category')
+
     return app
