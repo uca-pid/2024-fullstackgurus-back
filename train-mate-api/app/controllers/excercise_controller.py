@@ -4,7 +4,8 @@ from app.services.exercise_service import (
     save_exercise as save_exercise_service,
     get_exercises as get_exercises_service,
     delete_exercise as delete_exercise_service,
-    update_exercise as update_exercise_service
+    update_exercise as update_exercise_service,
+    get_all_exercises as get_all_exercises_service
 )
 
 exercise_bp = Blueprint('exercise_bp', __name__)
@@ -13,8 +14,9 @@ def validate_body(data):
     name = data.get('name')
     calories_per_hour = data.get('calories_per_hour')
     public = data.get('public')
+    category_id = data.get('category_id')
 
-    if not name or calories_per_hour is None or public is None:
+    if not name or calories_per_hour is None or public is None or category_id is None:
         return {"error": "Missing data"}, 400
 
     if not isinstance(name, str) or not isinstance(calories_per_hour, (int, float)) or not isinstance(public, (str, bool)):
@@ -161,3 +163,52 @@ def edit_exercise(exercise_id):
         print(f"Error updating exercise: {e}")
         return jsonify({"error": "Something went wrong"}), 500
 
+
+# Get All Exercises. Public endpoint
+@exercise_bp.route('/get-all-exercises', methods=['GET'])
+def get_all_exercises():
+    try:
+        exercises = get_all_exercises_service()
+        return jsonify({"exercises": exercises}), 200
+
+    except Exception as e:
+        print(f"Error fetching exercises: {e}")
+        return jsonify({"error": "Something went wrong"}), 500
+    
+# Save Exercise
+@exercise_bp.route('/save-default-exercises', methods=['POST'])
+def save_default_exercises():
+    try:
+        data = request.get_json()
+
+        if not isinstance(data, list):
+            return jsonify({"error": "Input should be a list of exercises"}), 400
+
+        response = []
+        for exercise in data:
+            validation_error = validate_body(exercise)
+            if validation_error:
+                response.append({"exercise": exercise, "error": validation_error[0]})
+                continue
+
+            name = exercise['name']
+            calories_per_hour = exercise['calories_per_hour']
+            public = exercise['public']
+            category_id = exercise['category_id']
+            uid = "default"
+
+            if isinstance(public, str):
+                public = True if public.lower() == 'true' else False
+
+            success = save_exercise_service(uid, name, calories_per_hour, public, category_id)
+            if not success:
+                response.append({"exercise": exercise, "error": "Failed to save exercise"})
+                continue
+
+            response.append({"exercise": exercise, "message": "Exercise saved successfully"})
+
+        return jsonify(response), 207
+
+    except Exception as e:
+        print(f"Error saving exercises: {e}")
+        return jsonify({"error": "Something went wrong"}), 500
