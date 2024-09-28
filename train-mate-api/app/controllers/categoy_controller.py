@@ -6,7 +6,7 @@ from app.services.category_service import (
     get_categories as get_categories_service,
     delete_category as delete_category_service,
     update_category as update_category_service,
-    get_category_by_id as get_category_by_id_service
+    get_category_by_id as get_category_by_id_service,
 )
 
 category_bp = Blueprint('category_bp', __name__)
@@ -76,14 +76,7 @@ def get_categories():
 
         categories = get_categories_service(uid)
         
-        # Add category_id to the returned data
-        categories_with_id = []
-        for category in categories:
-            category_data = category.to_dict()
-            category_data['category_id'] = category.id
-            categories_with_id.append(category_data)
-        
-        return jsonify({"categories": categories_with_id}), 200
+        return jsonify({"categories": categories}), 200
 
     except Exception as e:
         print(f"Error fetching categories: {e}")
