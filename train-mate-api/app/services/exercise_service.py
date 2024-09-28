@@ -1,14 +1,15 @@
 from firebase_setup import db
 
 # Save Exercise
-def save_exercise(uid, name, calories_per_hour, public):
+def save_exercise(uid, name, calories_per_hour, public, category_id):
     try:
         exercise_ref = db.collection('exercises').document()  # Create a new document with a generated ID
         exercise_data = {
             'name': name,
             'calories_per_hour': calories_per_hour,
             'public': public,
-            'owner': uid
+            'owner': uid,
+            'category_id': category_id
         }
         exercise_ref.set(exercise_data)  # Save the data
         return exercise_ref.id  # Return the generated ID
@@ -64,3 +65,22 @@ def update_exercise(uid, exercise_id, update_data):
     except Exception as e:
         print(f"Error updating exercise in Firestore: {e}")
         return False
+
+# Get all excercices that exist, even if public or private, for the app integration
+def get_all_exercises():
+    try:
+        exercises_ref = db.collection('exercises')
+        exercises = exercises_ref.stream()
+        return [
+            {
+                "calories_per_hour": exercise.get("calories_per_hour"),
+                "name": exercise.get("name"),
+                "public": exercise.get("public")
+            }
+            for exercise in (exercise.to_dict() for exercise in exercises)
+        ]
+
+    except Exception as e:
+        print(f"Error getting all exercises: {e}")
+        return []
+    

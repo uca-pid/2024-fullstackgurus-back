@@ -182,3 +182,28 @@ def get_category_by_id(category_id):
         print(f"Error fetching category by ID: {e}")
         return jsonify({"error": "Something went wrong"}), 500
 
+
+# Guardar una categoría pública/default
+@category_bp.route('/save-default-category', methods=['POST'])
+def save_default_category():
+    try:
+        data = request.get_json()
+
+        validation_error = validate_category(data)
+        if validation_error:
+            return jsonify(validation_error[0]), validation_error[1]
+
+        name = data['name']
+        icon = data['icon']
+        isCustom = data['isCustom']
+        owner = None
+
+        success, category_id = save_category_service(name, icon, isCustom, owner)
+        if not success:
+            return jsonify({"error": "Failed to save category"}), 500
+
+        return jsonify({"message": "Category saved successfully", "category_id": category_id}), 201
+
+    except Exception as e:
+        print(f"Error saving category: {e}")
+        return jsonify({"error": "Something went wrong"}), 500
