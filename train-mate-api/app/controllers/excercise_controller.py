@@ -5,7 +5,8 @@ from app.services.exercise_service import (
     get_exercises as get_exercises_service,
     delete_exercise as delete_exercise_service,
     update_exercise as update_exercise_service,
-    get_all_exercises as get_all_exercises_service
+    get_all_exercises as get_all_exercises_service,
+    get_exercise_by_category_id as get_exercise_by_category_id_service,
 )
 
 exercise_bp = Blueprint('exercise_bp', __name__)
@@ -211,4 +212,25 @@ def save_default_exercises():
 
     except Exception as e:
         print(f"Error saving exercises: {e}")
+        return jsonify({"error": "Something went wrong"}), 500
+
+# Get Exercises by Category ID
+@exercise_bp.route('/get-exercises-by-category/<category_id>', methods=['GET'])
+def get_exercises_by_category_id(category_id):
+    try:
+        token = request.headers.get('Authorization')
+        if not token or 'Bearer ' not in token:
+            return jsonify({"error": "Authorization token missing"}), 403
+        
+        token = token.split(' ')[1]
+        uid = verify_token_service(token)
+
+        if not uid:
+            return jsonify({"error": "Invalid token"}), 403
+        
+        exercises = get_exercise_by_category_id_service(category_id)
+        return jsonify({"exercises": exercises}), 200
+
+    except Exception as e:
+        print(f"Error fetching exercises: {e}")
         return jsonify({"error": "Something went wrong"}), 500
