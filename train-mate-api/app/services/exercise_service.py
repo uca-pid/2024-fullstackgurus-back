@@ -11,8 +11,9 @@ def save_exercise(uid, name, calories_per_hour, public, category_id):
             'owner': uid,
             'category_id': category_id
         }
-        exercise_ref.set(exercise_data)  # Save the data
-        return exercise_ref.id  # Return the generated ID
+        exercise_ref.set(exercise_data)
+        exercise_data['exercise_id'] = exercise_ref.id
+        return True, exercise_data
     except Exception as e:
         print(f"Error saving exercise in Firestore: {e}")
         return None
