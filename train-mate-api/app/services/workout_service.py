@@ -1,12 +1,12 @@
 from firebase_admin import auth
+from firebase_admin import firestore
 from firebase_setup import db
 from app.services.user_service import get_user_info_service
+from datetime import datetime
 
 def save_user_workout(uid, data):
-
     user_info = get_user_info_service(uid)
 
-    # Check if user info exists and get the weight
     if not user_info or 'weight' not in user_info:
         raise ValueError("User information is incomplete. Weight is required.")
     
@@ -18,6 +18,16 @@ def save_user_workout(uid, data):
     if not user_doc.exists:
         user_ref.set({})
 
+    # Convertir la fecha de string a un objeto datetime antes de guardar
+    if 'date' in data and isinstance(data['date'], str):
+        try:
+            # Convertir string a datetime
+            date_obj = datetime.strptime(data['date'], '%Y-%m-%d')
+        except ValueError:
+            raise ValueError("Formato de fecha inválido. Usa 'YYYY-MM-DD'.")
+    else:
+        date_obj = firestore.SERVER_TIMESTAMP  # Si no se proporciona fecha, usar timestamp del servidor
+
     # Reference to the user's workouts subcollection
     user_workouts_ref = db.collection('workouts').document(uid).collection('user_workouts')
 
@@ -25,7 +35,7 @@ def save_user_workout(uid, data):
     workout_ref = user_workouts_ref.add({
         'exercise': data['exercise'],
         'duration': data['duration'],
-        'date': data['date'],
+        'date': date_obj,  # Almacenar la fecha como un timestamp
         'calories': calories
     })
 
@@ -37,18 +47,36 @@ def save_user_workout(uid, data):
         'id': workout_id,
         'exercise': data['exercise'],
         'duration': data['duration'],
-        'date': data['date'],
+        'date': date_obj,  # Devuelve el objeto datetime
         'calories': calories
     }
 
     return saved_workout
 
-def get_user_workouts(uid):
+
+def get_user_workouts(uid, start_date=None, end_date=None):
     # Reference to the user's workouts subcollection
     user_workouts_ref = db.collection('workouts').document(uid).collection('user_workouts')
 
-    # Get all documents from the subcollection
-    workouts = user_workouts_ref.stream()
+
+    try:
+        # Filtrado por startDate si está presente
+        if start_date:
+            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+            print("start date time", start_datetime)
+            user_workouts_ref = user_workouts_ref.where('date', '>=', start_datetime)
+
+        # Filtrado por endDate si está presente
+        if end_date:
+            print(end_date)
+            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+            user_workouts_ref = user_workouts_ref.where('date', '<=', end_datetime)
+
+        # Obtener los workouts filtrados (o todos si no se pasa ningún filtro)
+        workouts = user_workouts_ref.stream()
+
+    except ValueError:
+        return {"error": "Formato de fecha inválido. Usa 'YYYY-MM-DD'."}
 
     # Parse each document and store it in a list
     workout_list = []
@@ -59,9 +87,28 @@ def get_user_workouts(uid):
 
     return workout_list
 
-def get_user_calories_from_workouts(uid):
+def get_user_calories_from_workouts(uid, start_date=None, end_date=None):
     # Reference to the user's workouts subcollection
     user_workouts_ref = db.collection('workouts').document(uid).collection('user_workouts')
+
+    try:
+        # Filtrado por startDate si está presente
+        if start_date:
+            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+            print("start date time", start_datetime)
+            user_workouts_ref = user_workouts_ref.where('date', '>=', start_datetime)
+
+        # Filtrado por endDate si está presente
+        if end_date:
+            print(end_date)
+            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+            user_workouts_ref = user_workouts_ref.where('date', '<=', end_datetime)
+
+        # Obtener los workouts filtrados (o todos si no se pasa ningún filtro)
+        workouts = user_workouts_ref.stream()
+
+    except ValueError:
+        return {"error": "Formato de fecha inválido. Usa 'YYYY-MM-DD'."}
 
     # Get all documents from the subcollection
     workouts = user_workouts_ref.stream()

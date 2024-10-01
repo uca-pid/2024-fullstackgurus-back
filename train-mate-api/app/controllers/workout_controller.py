@@ -41,13 +41,16 @@ def get_workouts():
     try:
         # Extract and validate the token
         token = request.headers.get('Authorization').split(' ')[1]
-
         uid = verify_token_service(token)
         if uid is None:
             return jsonify({'error': 'Token inválido'}), 401
 
-        # Get all workouts for the user
-        workouts = get_user_workouts(uid)
+        # Obtener las fechas de los parámetros de la URL
+        start_date = request.args.get('startDate')
+        end_date = request.args.get('endDate')
+
+        # Get all workouts for the user with optional date filtering
+        workouts = get_user_workouts(uid, start_date, end_date)
 
         # Return the list of workouts
         return jsonify({
@@ -59,6 +62,7 @@ def get_workouts():
         return jsonify({'error': 'Algo salió mal'}), 500
 
 
+
 @workout_bp.route('/get-workouts-calories', methods=['GET'])
 def get_workouts_calories():
     try:
@@ -68,9 +72,13 @@ def get_workouts_calories():
         uid = verify_token_service(token)
         if uid is None:
             return jsonify({'error': 'Token inválido'}), 401
+        
+        start_date = request.args.get('startDate')
+        end_date = request.args.get('endDate')
+
 
         # Get all workouts for the user
-        workouts_calories, workouts_dates = get_user_calories_from_workouts(uid)
+        workouts_calories, workouts_dates = get_user_calories_from_workouts(uid, start_date, end_date)
 
         # Combinar las fechas y calorías en una lista de objetos
         workouts_calories_and_dates = [
