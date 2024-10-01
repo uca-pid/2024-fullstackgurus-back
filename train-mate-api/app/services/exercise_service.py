@@ -88,7 +88,8 @@ def get_exercise_by_category_id(category_id):
     try:
         exercises_ref = db.collection('exercises')
         exercises = exercises_ref.where('category_id', '==', category_id).stream()
-        return [exercise.to_dict() for exercise in exercises]
+        exercises_with_id = [{**exercise.to_dict(), 'exercise_id': exercise.id } for exercise in exercises]
+        return exercises_with_id
 
     except Exception as e:
         print(f"Error getting exercises by category ID: {e}")
