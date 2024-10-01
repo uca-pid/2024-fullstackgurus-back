@@ -49,11 +49,11 @@ def save_category():
         isCustom = data['isCustom']
         owner = uid if isCustom else None
 
-        success, category_id = save_category_service(name, icon, isCustom, owner)
+        success, category = save_category_service(name, icon, isCustom, owner)
         if not success:
             return jsonify({"error": "Failed to save category"}), 500
 
-        return jsonify({"message": "Category saved successfully", "category_id": category_id}), 201
+        return jsonify({"message": "Category saved successfully", "category": category}), 201
 
     except Exception as e:
         print(f"Error saving category: {e}")
