@@ -25,8 +25,8 @@ def save_user_workout(uid, data, calories_burned):
 
     # Add a new document to the subcollection
     workout_ref = user_workouts_ref.add({
-        'exercise_id': data['exercise_id'],  # Store exercise_id
-        'exercise': data['exercise'],  # Optionally store exercise name/type
+        'exercise_id': data['exercise_id'],
+        'exercise': data['exercise'],
         'duration': data['duration'],
         'date': date_obj,
         'calories': calories_burned
@@ -119,22 +119,22 @@ def get_user_calories_from_workouts(uid, start_date=None, end_date=None):
 
     return workout_calories_list, workout_dates_list
 
-MET_VALUES = {
-    'Running': 12.5,
-    'Weightlifting': 6.0,
-    'Cycling': 10.0,
-    'Swimming': 7.0,
-    'Football': 7.0,
-    'Basketball': 8.0,
-    'Tennis': 4.0,
+# MET_VALUES = {
+#     'Running': 12.5,
+#     'Weightlifting': 6.0,
+#     'Cycling': 10.0,
+#     'Swimming': 7.0,
+#     'Football': 7.0,
+#     'Basketball': 8.0,
+#     'Tennis': 4.0,
 
-}
+# }
 
-def calculate_calories(exercise, duration, weight):
-    # Get the MET value for the given exercise
-    met_value = MET_VALUES.get(exercise, 0)  # Default to 0 if exercise is not in the list
+# def calculate_calories(exercise, duration, weight):
+#     # Get the MET value for the given exercise
+#     met_value = MET_VALUES.get(exercise, 0)  # Default to 0 if exercise is not in the list
     
-    # Calculate calories burned using the formula
-    calories_burned = (met_value * 3.5 * weight * duration) / 200
+#     # Calculate calories burned using the formula
+#     calories_burned = (met_value * 3.5 * weight * duration) / 200
     
-    return round(calories_burned, 2)  # Round to 2 decimal places for better readability
+#     return round(calories_burned, 2)  # Round to 2 decimal places for better readability

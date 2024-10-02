@@ -38,7 +38,7 @@ def record_workout():
             return jsonify({'error': 'Invalid duration provided'}), 400
 
         # Calculate calories burned
-        calories_burned = (calories_per_hour / 60) * duration
+        calories_burned = round((calories_per_hour / 60) * duration)
 
         # Save the workout using the service and pass the necessary details
         saved_workout = save_user_workout(uid, data, calories_burned)
