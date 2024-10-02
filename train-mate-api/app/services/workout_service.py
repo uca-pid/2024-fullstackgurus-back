@@ -110,14 +110,17 @@ def get_user_calories_from_workouts(uid, start_date=None, end_date=None):
     # Parse each document and store it in a list
     workout_calories_list = []
     workout_dates_list = []
+    workout_exercise_id_list = []
     for workout in workouts:
         workout_data = workout.to_dict()
         workout_calories = workout_data['calories']
         workout_date = workout_data['date']
+        workout_exercise_id = workout_data['exercise_id']
         workout_calories_list.append(workout_calories)
         workout_dates_list.append(workout_date)
+        workout_exercise_id_list.append(workout_exercise_id)
 
-    return workout_calories_list, workout_dates_list
+    return workout_calories_list, workout_dates_list, workout_exercise_id_list
 
 # MET_VALUES = {
 #     'Running': 12.5,
