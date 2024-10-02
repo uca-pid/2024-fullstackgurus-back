@@ -1,11 +1,20 @@
 # app/__init__.py
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(
+    key_func=get_remote_address,  # Usar la IP del cliente como clave
+    default_limits=["10 per hour"]  # Límite por defecto
+)
+
 
 def create_app():
     app = Flask(__name__)
-
+    #limiter.init_app(app)
     CORS(app)
+    
 
     @app.route('/')
     def home():
