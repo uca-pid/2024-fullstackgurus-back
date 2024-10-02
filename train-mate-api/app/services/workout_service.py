@@ -4,51 +4,45 @@ from firebase_setup import db
 from app.services.user_service import get_user_info_service
 from datetime import datetime
 
-def save_user_workout(uid, data):
-    user_info = get_user_info_service(uid)
-
-    if not user_info or 'weight' not in user_info:
-        raise ValueError("User information is incomplete. Weight is required.")
-    
-    calories = calculate_calories(data['exercise'], data['duration'], user_info['weight'])
-
+def save_user_workout(uid, data, calories_burned):
     user_ref = db.collection('workouts').document(uid)
     user_doc = user_ref.get()
 
     if not user_doc.exists:
         user_ref.set({})
 
-    # Convertir la fecha de string a un objeto datetime antes de guardar
+    # Convert the date from string to a datetime object
     if 'date' in data and isinstance(data['date'], str):
         try:
-            # Convertir string a datetime
             date_obj = datetime.strptime(data['date'], '%Y-%m-%d')
         except ValueError:
-            raise ValueError("Formato de fecha inválido. Usa 'YYYY-MM-DD'.")
+            raise ValueError("Invalid date format. Use 'YYYY-MM-DD'.")
     else:
-        date_obj = firestore.SERVER_TIMESTAMP  # Si no se proporciona fecha, usar timestamp del servidor
+        date_obj = db.SERVER_TIMESTAMP
 
     # Reference to the user's workouts subcollection
     user_workouts_ref = db.collection('workouts').document(uid).collection('user_workouts')
 
-    # Add a new document to the subcollection (Firestore generates a unique ID)
+    # Add a new document to the subcollection
     workout_ref = user_workouts_ref.add({
-        'exercise': data['exercise'],
+        'exercise_id': data['exercise_id'],  # Store exercise_id
+        'exercise': data['exercise'],  # Optionally store exercise name/type
         'duration': data['duration'],
-        'date': date_obj,  # Almacenar la fecha como un timestamp
-        'calories': calories
+        'date': date_obj,
+        'calories': calories_burned
     })
 
     # The workout_ref contains the Firestore-generated ID
-    workout_id = workout_ref[1].id  # Access the ID of the newly created workout document
+    workout_id = workout_ref[1].id
 
     # Return the workout data, including the ID
     saved_workout = {
         'id': workout_id,
+        'exercise_id': data['exercise_id'],
         'exercise': data['exercise'],
         'duration': data['duration'],
-        'date': date_obj,  # Devuelve el objeto datetime
-        'calories': calories
+        'date': date_obj,
+        'calories': calories_burned
     }
 
     return saved_workout
