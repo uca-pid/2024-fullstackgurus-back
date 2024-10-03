@@ -95,12 +95,12 @@ def get_workouts_calories():
 
 
         # Get all workouts for the user
-        workouts_calories, workouts_dates = get_user_calories_from_workouts(uid, start_date, end_date)
+        workouts_calories, workouts_dates, workouts_exercise_id = get_user_calories_from_workouts(uid, start_date, end_date)
 
         # Combinar las fechas y calorías en una lista de objetos
         workouts_calories_and_dates = [
-            {"date": date, "calories": calories}
-            for date, calories in zip(workouts_dates, workouts_calories)
+            {"date": date, "calories": calories, "exercise_id": exercise_id}
+            for date, calories, exercise_id in zip(workouts_dates, workouts_calories, workouts_exercise_id)
         ]
 
         # Return the combined list of workouts
