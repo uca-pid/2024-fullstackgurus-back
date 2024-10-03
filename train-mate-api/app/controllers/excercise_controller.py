@@ -50,15 +50,16 @@ def save_exercise():
         name = data['name']
         calories_per_hour = data['calories_per_hour']
         public = data['public']
+        category_id = data['category_id']
 
         if isinstance(public, str):
             public = True if public.lower() == 'true' else False
 
-        success = save_exercise_service(uid, name, calories_per_hour, public)
+        success, exercise = save_exercise_service(uid, name, calories_per_hour, public, category_id)
         if not success:
             return jsonify({"error": "Failed to save exercise"}), 500
 
-        return jsonify({"message": "Exercise saved successfully"}), 201
+        return jsonify({"message": "Exercise saved successfully", "exercise": exercise}), 201
 
     except Exception as e:
         print(f"Error saving exercise: {e}")

@@ -11,8 +11,9 @@ def save_exercise(uid, name, calories_per_hour, public, category_id):
             'owner': uid,
             'category_id': category_id
         }
-        exercise_ref.set(exercise_data)  # Save the data
-        return exercise_ref.id  # Return the generated ID
+        exercise_ref.set(exercise_data)
+        exercise_data['exercise_id'] = exercise_ref.id
+        return True, exercise_data
     except Exception as e:
         print(f"Error saving exercise in Firestore: {e}")
         return None
@@ -90,7 +91,8 @@ def get_exercise_by_category_id(category_id):
     try:
         exercises_ref = db.collection('exercises')
         exercises = exercises_ref.where('category_id', '==', category_id).stream()
-        return [{"id": exercise.id, **exercise.to_dict()} for exercise in exercises]  # Añadimos el exercise_id
+        exercises_with_id = [{**exercise.to_dict(), 'exercise_id': exercise.id } for exercise in exercises]
+        return exercises_with_id
 
     except Exception as e:
         print(f"Error getting exercises by category ID: {e}")

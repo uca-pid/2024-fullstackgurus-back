@@ -11,7 +11,8 @@ def save_category(name, icon, isCustom, owner):
             'owner': owner
         }
         category_ref.set(category_data)
-        return True, category_ref.id  # Retornar el ID generado
+        category_data['category_id'] = category_ref.id  # Añadir el ID generado al objeto de datos
+        return True, category_data  # Retornar el objeto completo con el ID
     except Exception as e:
         print(f"Error saving category in Firestore: {e}")
         return False, None
