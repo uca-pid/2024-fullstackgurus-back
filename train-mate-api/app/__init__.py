@@ -12,7 +12,7 @@ limiter = Limiter(
 
 def create_app():
     app = Flask(__name__)
-    limiter.init_app(app)
+    #limiter.init_app(app)
     CORS(app)
     
 
