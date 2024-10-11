@@ -39,4 +39,7 @@ def create_app():
     from app.controllers.categoy_controller import category_bp
     app.register_blueprint(category_bp, url_prefix='/api/category')
 
+    from app.controllers.trainings_controller import trainings_bp
+    app.register_blueprint(trainings_bp, url_prefix='/api/trainings')
+
     return app
