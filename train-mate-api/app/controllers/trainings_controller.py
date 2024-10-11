@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.services.auth_service import verify_token_service
-from app.services.trainings_service import save_user_training, get_user_trainings
+from app.services.trainings_service import save_user_training, get_user_trainings, get_training_by_id
 
 trainings_bp = Blueprint('trainings_bp', __name__)
 
@@ -47,6 +47,25 @@ def get_trainings():
 
         trainings = get_user_trainings(uid)
         return jsonify({'trainings': trainings}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Something went wrong'}), 500
+
+@trainings_bp.route('/get-training/<training_id>', methods=['GET'])
+def get_training_by_id(training_id):
+    try:
+        # Extract and validate the token
+        token = request.headers.get('Authorization').split(' ')[1]
+        uid = verify_token_service(token)
+        if uid is None:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        training = get_training_by_id(uid, training_id)
+        if not training:
+            return jsonify({'error': 'Training not found'}), 404
+
+        return jsonify(training), 200
 
     except Exception as e:
         print(f"Error: {e}")

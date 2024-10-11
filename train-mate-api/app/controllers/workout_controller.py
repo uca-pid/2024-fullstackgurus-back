@@ -3,6 +3,7 @@ from app.model.exercise import ExerciseType
 from app.services.user_service import verify_token_service
 from app.services.workout_service import save_user_workout, get_user_workouts, get_user_calories_from_workouts
 from app.services.exercise_service import get_exercise_by_id_service
+from app.services.trainings_service import get_training_by_id
 
 workout_bp = Blueprint('workout_bp', __name__)
 
@@ -18,19 +19,12 @@ def record_workout():
         # Get request data
         data = request.get_json()
 
-        # Validate if exercise_id is provided
-        exercise_id = data.get('exercise_id')
-        if not exercise_id:
-            return jsonify({'error': 'exercise_id is required'}), 400
+        # Validate if training_id is provided
+        training_id = data.get('training_id')
+        if not training_id:
+            return jsonify({'error': 'training_id is required'}), 400
 
-        # Fetch exercise details via service using exercise_id
-        exercise_data = get_exercise_by_id_service(exercise_id)
-        if not exercise_data:
-            return jsonify({'error': 'Exercise not found'}), 404
-
-        calories_per_hour = exercise_data.get('calories_per_hour')
-        if not calories_per_hour:
-            return jsonify({'error': 'Invalid exercise, missing calories per hour'}), 400
+        calories_per_hour_mean = get_training_by_id(uid, training_id).get('calories_per_hour_mean')
 
         # Calculate calories burned based on duration and calories_per_hour
         duration = data.get('duration')
@@ -38,7 +32,7 @@ def record_workout():
             return jsonify({'error': 'Invalid duration provided'}), 400
 
         # Calculate calories burned
-        calories_burned = round((calories_per_hour / 60) * duration)
+        calories_burned = round((calories_per_hour_mean / 60) * duration)
 
         # Save the workout using the service and pass the necessary details
         saved_workout = save_user_workout(uid, data, calories_burned)

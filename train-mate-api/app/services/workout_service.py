@@ -15,6 +15,7 @@ def save_user_workout(uid, data, calories_burned):
     if 'date' in data and isinstance(data['date'], str):
         try:
             date_obj = datetime.strptime(data['date'], '%Y-%m-%d')
+            date_obj = date_obj.replace(hour=10, minute=0) # Set default time a las 10:00 AM porque sino por el uso horario Firebase te lo tira -3 horas al dia anterior
         except ValueError:
             raise ValueError("Invalid date format. Use 'YYYY-MM-DD'.")
     else:
@@ -25,11 +26,11 @@ def save_user_workout(uid, data, calories_burned):
 
     # Add a new document to the subcollection
     workout_ref = user_workouts_ref.add({
-        'exercise_id': data['exercise_id'],
-        'exercise': data['exercise'],
+        'training_id': data['training_id'],
         'duration': data['duration'],
         'date': date_obj,
-        'calories': calories_burned
+        'total_calories': calories_burned,
+        'coach': data['coach']
     })
 
     # The workout_ref contains the Firestore-generated ID
@@ -38,11 +39,11 @@ def save_user_workout(uid, data, calories_burned):
     # Return the workout data, including the ID
     saved_workout = {
         'id': workout_id,
-        'exercise_id': data['exercise_id'],
-        'exercise': data['exercise'],
+        'training_id': data['training_id'],
         'duration': data['duration'],
         'date': date_obj,
-        'calories': calories_burned
+        'total_calories': calories_burned,
+        'coach': data['coach']
     }
 
     return saved_workout
@@ -51,7 +52,6 @@ def save_user_workout(uid, data, calories_burned):
 def get_user_workouts(uid, start_date=None, end_date=None):
     # Reference to the user's workouts subcollection
     user_workouts_ref = db.collection('workouts').document(uid).collection('user_workouts')
-
 
     try:
         # Filtrado por startDate si está presente

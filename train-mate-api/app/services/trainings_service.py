@@ -52,3 +52,13 @@ def get_user_trainings(uid):
     except Exception as e:
         print(f"Error getting trainings from Firestore: {e}")
         return []
+
+def get_training_by_id(uid, training_id):
+    training_ref = db.collection('trainings').document(uid).collection('user_trainings').document(training_id)
+    training = training_ref.get()
+
+    if not training.exists:
+        return None
+
+    training_data = training.to_dict()
+    return training_data
