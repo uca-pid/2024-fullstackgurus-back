@@ -19,11 +19,13 @@ def save_training():
         # Calculate calories per hour mean
         exercises = data.get('exercises')
         calories_per_hour_sum = 0
+        exercises_ids = []
         for exercise in exercises:
             calories_per_hour_sum += exercise.get('calories_per_hour')
+            exercises_ids.append(exercise.get('exercise_id'))
         calories_per_hour_mean = calories_per_hour_sum / len(exercises)
 
-        saved_training = save_user_training(uid, data, calories_per_hour_mean)
+        saved_training = save_user_training(uid, data, exercises_ids, calories_per_hour_mean)
 
         return jsonify({
             'message': 'Training saved successfully',

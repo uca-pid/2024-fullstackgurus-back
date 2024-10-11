@@ -1,7 +1,7 @@
 from firebase_setup import db
 import json
 
-def save_user_training(uid, data, calories_per_hour_mean):
+def save_user_training(uid, data, exercises_ids, calories_per_hour_mean):
     user_ref = db.collection('trainings').document(uid)
     user_doc = user_ref.get()
 
@@ -12,7 +12,8 @@ def save_user_training(uid, data, calories_per_hour_mean):
 
     training_ref = user_trainings_ref.add({
         'calories_per_hour_mean': calories_per_hour_mean,
-        'exercises': data['exercises'],
+        'exercises': exercises_ids,
+        'name': data['name'],
         'owner': uid
     })
 
@@ -21,7 +22,8 @@ def save_user_training(uid, data, calories_per_hour_mean):
     saved_training = {
         'id': training_id,
         'calories_per_hour_mean': calories_per_hour_mean,
-        'exercises': data['exercises'],
+        'exercises': exercises_ids,
+        'owner': uid,
     }
 
     return saved_training
