@@ -15,6 +15,7 @@ def save_user_workout(uid, data, calories_burned):
     if 'date' in data and isinstance(data['date'], str):
         try:
             date_obj = datetime.strptime(data['date'], '%Y-%m-%d')
+            date_obj = date_obj.replace(hour=10, minute=0) # Set default time a las 10:00 AM porque sino por el uso horario Firebase te lo tira -3 horas al dia anterior
         except ValueError:
             raise ValueError("Invalid date format. Use 'YYYY-MM-DD'.")
     else:
@@ -25,11 +26,11 @@ def save_user_workout(uid, data, calories_burned):
 
     # Add a new document to the subcollection
     workout_ref = user_workouts_ref.add({
-        'exercise_id': data['exercise_id'],
-        'exercise': data['exercise'],
+        'training_id': data['training_id'],
         'duration': data['duration'],
         'date': date_obj,
-        'calories': calories_burned
+        'total_calories': calories_burned,
+        'coach': data['coach']
     })
 
     # The workout_ref contains the Firestore-generated ID
@@ -38,11 +39,11 @@ def save_user_workout(uid, data, calories_burned):
     # Return the workout data, including the ID
     saved_workout = {
         'id': workout_id,
-        'exercise_id': data['exercise_id'],
-        'exercise': data['exercise'],
+        'training_id': data['training_id'],
         'duration': data['duration'],
         'date': date_obj,
-        'calories': calories_burned
+        'total_calories': calories_burned,
+        'coach': data['coach']
     }
 
     return saved_workout
@@ -52,18 +53,17 @@ def get_user_workouts(uid, start_date=None, end_date=None):
     # Reference to the user's workouts subcollection
     user_workouts_ref = db.collection('workouts').document(uid).collection('user_workouts')
 
-
     try:
         # Filtrado por startDate si está presente
         if start_date:
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            print("start date time", start_datetime)
+            start_datetime = start_datetime.replace(hour=10, minute=0)
             user_workouts_ref = user_workouts_ref.where('date', '>=', start_datetime)
 
         # Filtrado por endDate si está presente
         if end_date:
-            print(end_date)
             end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+            end_datetime = end_datetime.replace(hour=10, minute=0)
             user_workouts_ref = user_workouts_ref.where('date', '<=', end_datetime)
 
         # Obtener los workouts filtrados (o todos si no se pasa ningún filtro)
@@ -89,12 +89,10 @@ def get_user_calories_from_workouts(uid, start_date=None, end_date=None):
         # Filtrado por startDate si está presente
         if start_date:
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            print("start date time", start_datetime)
             user_workouts_ref = user_workouts_ref.where('date', '>=', start_datetime)
 
         # Filtrado por endDate si está presente
         if end_date:
-            print(end_date)
             end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
             user_workouts_ref = user_workouts_ref.where('date', '<=', end_datetime)
 
@@ -110,17 +108,17 @@ def get_user_calories_from_workouts(uid, start_date=None, end_date=None):
     # Parse each document and store it in a list
     workout_calories_list = []
     workout_dates_list = []
-    workout_exercise_id_list = []
+    workout_training_id_list = []
     for workout in workouts:
         workout_data = workout.to_dict()
-        workout_calories = workout_data['calories']
+        workout_calories = workout_data['total_calories']
         workout_date = workout_data['date']
-        workout_exercise_id = workout_data['exercise_id']
+        workout_training_id = workout_data['training_id']
         workout_calories_list.append(workout_calories)
         workout_dates_list.append(workout_date)
-        workout_exercise_id_list.append(workout_exercise_id)
+        workout_training_id_list.append(workout_training_id)
 
-    return workout_calories_list, workout_dates_list, workout_exercise_id_list
+    return workout_calories_list, workout_dates_list, workout_training_id_list
 
 # MET_VALUES = {
 #     'Running': 12.5,

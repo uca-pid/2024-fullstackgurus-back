@@ -91,7 +91,7 @@ def get_exercise_by_category_id(category_id):
     try:
         exercises_ref = db.collection('exercises')
         exercises = exercises_ref.where('category_id', '==', category_id).stream()
-        exercises_with_id = [{**exercise.to_dict(), 'exercise_id': exercise.id } for exercise in exercises]
+        exercises_with_id = [{**exercise.to_dict(), 'id': exercise.id } for exercise in exercises]
         return exercises_with_id
 
     except Exception as e:

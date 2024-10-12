@@ -3,6 +3,7 @@ from app.model.exercise import ExerciseType
 from app.services.user_service import verify_token_service
 from app.services.workout_service import save_user_workout, get_user_workouts, get_user_calories_from_workouts
 from app.services.exercise_service import get_exercise_by_id_service
+from app.services.trainings_service import get_training_by_id
 
 workout_bp = Blueprint('workout_bp', __name__)
 
@@ -18,19 +19,12 @@ def record_workout():
         # Get request data
         data = request.get_json()
 
-        # Validate if exercise_id is provided
-        exercise_id = data.get('exercise_id')
-        if not exercise_id:
-            return jsonify({'error': 'exercise_id is required'}), 400
+        # Validate if training_id is provided
+        training_id = data.get('training_id')
+        if not training_id:
+            return jsonify({'error': 'training_id is required'}), 400
 
-        # Fetch exercise details via service using exercise_id
-        exercise_data = get_exercise_by_id_service(exercise_id)
-        if not exercise_data:
-            return jsonify({'error': 'Exercise not found'}), 404
-
-        calories_per_hour = exercise_data.get('calories_per_hour')
-        if not calories_per_hour:
-            return jsonify({'error': 'Invalid exercise, missing calories per hour'}), 400
+        calories_per_hour_mean = get_training_by_id(uid, training_id).get('calories_per_hour_mean')
 
         # Calculate calories burned based on duration and calories_per_hour
         duration = data.get('duration')
@@ -38,7 +32,7 @@ def record_workout():
             return jsonify({'error': 'Invalid duration provided'}), 400
 
         # Calculate calories burned
-        calories_burned = round((calories_per_hour / 60) * duration)
+        calories_burned = round((calories_per_hour_mean / 60) * duration)
 
         # Save the workout using the service and pass the necessary details
         saved_workout = save_user_workout(uid, data, calories_burned)
@@ -65,9 +59,18 @@ def get_workouts():
         # Obtener las fechas de los parámetros de la URL
         start_date = request.args.get('startDate')
         end_date = request.args.get('endDate')
-
         # Get all workouts for the user with optional date filtering
         workouts = get_user_workouts(uid, start_date, end_date)
+        for workout in workouts:
+            exercises = []
+            training_data = get_training_by_id(uid, workout['training_id'])
+            workout['training'] = training_data
+            for exercise_id in training_data['exercises']:
+                exercise_data = get_exercise_by_id_service(exercise_id)
+                exercise_data['id'] = exercise_id
+                exercises.append(exercise_data)
+            workout['training']['exercises'] = exercises
+
 
         # Return the list of workouts
         return jsonify({
@@ -79,7 +82,7 @@ def get_workouts():
         return jsonify({'error': 'Algo salió mal'}), 500
 
 
-
+# Va a quedar deprecado, ya el endpoint de workouts tiene toda la data que necesito
 @workout_bp.route('/get-workouts-calories', methods=['GET'])
 def get_workouts_calories():
     try:
@@ -95,12 +98,12 @@ def get_workouts_calories():
 
 
         # Get all workouts for the user
-        workouts_calories, workouts_dates, workouts_exercise_id = get_user_calories_from_workouts(uid, start_date, end_date)
+        workouts_calories, workouts_dates, workouts_training_id = get_user_calories_from_workouts(uid, start_date, end_date)
 
         # Combinar las fechas y calorías en una lista de objetos
         workouts_calories_and_dates = [
-            {"date": date, "calories": calories, "exercise_id": exercise_id}
-            for date, calories, exercise_id in zip(workouts_dates, workouts_calories, workouts_exercise_id)
+            {"date": date, "total_calories": calories, "training_id": training_id}
+            for date, calories, training_id in zip(workouts_dates, workouts_calories, workouts_training_id)
         ]
 
         # Return the combined list of workouts
