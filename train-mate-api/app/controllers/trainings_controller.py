@@ -23,7 +23,7 @@ def save_training():
         for exercise in exercises:
             calories_per_hour_sum += exercise.get('calories_per_hour')
             exercises_ids.append(exercise.get('exercise_id'))
-        calories_per_hour_mean = calories_per_hour_sum / len(exercises)
+        calories_per_hour_mean = round(calories_per_hour_sum / len(exercises))
 
         saved_training = save_user_training(uid, data, exercises_ids, calories_per_hour_mean)
 
