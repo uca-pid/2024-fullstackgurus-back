@@ -59,7 +59,6 @@ def get_workouts():
         # Obtener las fechas de los parámetros de la URL
         start_date = request.args.get('startDate')
         end_date = request.args.get('endDate')
-
         # Get all workouts for the user with optional date filtering
         workouts = get_user_workouts(uid, start_date, end_date)
         for workout in workouts:
