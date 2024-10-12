@@ -62,6 +62,16 @@ def get_workouts():
 
         # Get all workouts for the user with optional date filtering
         workouts = get_user_workouts(uid, start_date, end_date)
+        for workout in workouts:
+            exercises = []
+            training_data = get_training_by_id(uid, workout['training_id'])
+            workout['training'] = training_data
+            for exercise_id in training_data['exercises']:
+                exercise_data = get_exercise_by_id_service(exercise_id)
+                exercise_data['id'] = exercise_id
+                exercises.append(exercise_data)
+            workout['training']['exercises'] = exercises
+
 
         # Return the list of workouts
         return jsonify({
@@ -73,7 +83,7 @@ def get_workouts():
         return jsonify({'error': 'Algo salió mal'}), 500
 
 
-
+# Va a quedar deprecado, ya el endpoint de workouts tiene toda la data que necesito
 @workout_bp.route('/get-workouts-calories', methods=['GET'])
 def get_workouts_calories():
     try:
@@ -89,12 +99,12 @@ def get_workouts_calories():
 
 
         # Get all workouts for the user
-        workouts_calories, workouts_dates, workouts_exercise_id = get_user_calories_from_workouts(uid, start_date, end_date)
+        workouts_calories, workouts_dates, workouts_training_id = get_user_calories_from_workouts(uid, start_date, end_date)
 
         # Combinar las fechas y calorías en una lista de objetos
         workouts_calories_and_dates = [
-            {"date": date, "calories": calories, "exercise_id": exercise_id}
-            for date, calories, exercise_id in zip(workouts_dates, workouts_calories, workouts_exercise_id)
+            {"date": date, "total_calories": calories, "training_id": training_id}
+            for date, calories, training_id in zip(workouts_dates, workouts_calories, workouts_training_id)
         ]
 
         # Return the combined list of workouts
