@@ -1,7 +1,7 @@
 from firebase_setup import db
 
 # Save Exercise
-def save_exercise(uid, name, calories_per_hour, public, category_id):
+def save_exercise(uid, name, calories_per_hour, public, category_id, training_muscle):
     try:
         exercise_ref = db.collection('exercises').document()  # Create a new document with a generated ID
         exercise_data = {
@@ -9,7 +9,8 @@ def save_exercise(uid, name, calories_per_hour, public, category_id):
             'calories_per_hour': calories_per_hour,
             'public': public,
             'owner': uid,
-            'category_id': category_id
+            'category_id': category_id,
+            'training_muscle': training_muscle
         }
         exercise_ref.set(exercise_data)
         exercise_data['id'] = exercise_ref.id
