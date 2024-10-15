@@ -41,5 +41,8 @@ def create_app():
 
     from app.controllers.trainings_controller import trainings_bp
     app.register_blueprint(trainings_bp, url_prefix='/api/trainings')
+    
+    from app.controllers.water_controller import water_bp
+    app.register_blueprint(water_bp, url_prefix='/api/water-intake')
 
     return app
