@@ -1,5 +1,7 @@
 from firebase_setup import db
 import json
+from collections import Counter
+from datetime import datetime
 
 def save_user_training(uid, data, exercises_ids, calories_per_hour_mean):
     user_ref = db.collection('trainings').document(uid)
@@ -62,13 +64,6 @@ def get_training_by_id(uid, training_id):
 
     training_data = training.to_dict()
     return training_data
-
-from firebase_setup import db
-from collections import Counter
-from datetime import datetime
-
-from collections import Counter
-from firebase_setup import db
 
 def get_popular_exercises():
     try:
