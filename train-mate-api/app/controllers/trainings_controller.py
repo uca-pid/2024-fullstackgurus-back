@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.services.auth_service import verify_token_service
-from app.services.trainings_service import save_user_training, get_user_trainings, get_training_by_id
+from app.services.trainings_service import get_popular_exercises, save_user_training, get_user_trainings, get_training_by_id
 
 trainings_bp = Blueprint('trainings_bp', __name__)
 
@@ -66,6 +66,20 @@ def get_training_by_id(training_id):
             return jsonify({'error': 'Training not found'}), 404
 
         return jsonify(training), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Something went wrong'}), 500
+    
+
+@trainings_bp.route('/popular-exercises', methods=['GET'])
+def get_popular_exercises_view():
+    try:
+        
+        # Get the top 5 exercises by popularity
+        popular_exercises = get_popular_exercises()
+
+        return jsonify({'popular_exercises': popular_exercises}), 200
 
     except Exception as e:
         print(f"Error: {e}")
