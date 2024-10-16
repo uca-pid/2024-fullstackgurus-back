@@ -62,3 +62,54 @@ def get_training_by_id(uid, training_id):
 
     training_data = training.to_dict()
     return training_data
+
+from firebase_setup import db
+from collections import Counter
+from datetime import datetime
+
+from collections import Counter
+from firebase_setup import db
+
+def get_popular_exercises():
+    try:
+        # Acceder a todos los documentos en la colección `trainings`
+        trainings_ref = db.collection_group('user_trainings')  # Esto accede a todos los user_trainings de todos los usuarios
+        trainings = trainings_ref.stream()
+
+        # Crear un contador para contar la frecuencia de cada ejercicio
+        exercise_counter = Counter()
+
+        # Recorrer todos los entrenamientos y contar los ejercicios
+        for training in trainings:
+            training_data = training.to_dict()
+            exercise_ids = training_data.get('exercises', [])
+            
+            # Contar cuántas veces aparece cada ejercicio
+            for exercise_id in exercise_ids:
+                # Asegurarse de que el ejercicio es público
+                exercise_doc = db.collection('exercises').document(exercise_id).get()
+                if exercise_doc.exists:
+                    exercise_data = exercise_doc.to_dict()
+                    if exercise_data.get('public', False):  # Solo contar ejercicios públicos
+                        exercise_counter[exercise_id] += 1
+
+        # Obtener los 5 ejercicios más populares
+        most_common_exercises = exercise_counter.most_common(5)
+
+        # Formatear los resultados para devolver ejercicio_id, nombre y cantidad de veces que lo hicieron
+        popular_exercises = []
+        for exercise_id, count in most_common_exercises:
+            exercise_doc = db.collection('exercises').document(exercise_id).get()
+            if exercise_doc.exists:
+                exercise_data = exercise_doc.to_dict()
+                popular_exercises.append({
+                    'exercise_id': exercise_id,
+                    'name': exercise_data.get('name'),
+                    'count': count
+                })
+
+        return popular_exercises
+
+    except Exception as e:
+        print(f"Error getting popular exercises: {e}")
+        return []
