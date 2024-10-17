@@ -146,6 +146,13 @@ def edit_exercise(exercise_id):
             else:
                 return jsonify({"error": "Invalid data type or value for 'calories_per_hour'"}), 400
 
+        if 'training_muscle' in data:
+            training_muscle = data['training_muscle']
+            if isinstance(training_muscle, str):
+                update_data['training_muscle'] = training_muscle
+            else:
+                return jsonify({"error": "Invalid data type for 'training_muscle'"}), 400
+
         if 'public' in data:
             public = data['public']
             if isinstance(public, str):
