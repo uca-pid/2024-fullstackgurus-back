@@ -23,7 +23,7 @@ def add_water_intake_service(uid, quantity_in_militers, date, public=False):
         # Guardar o actualizar la ingesta de agua del día
         water_intake_ref.set({
             'quantity_in_militers': quantity_in_militers,
-            'date': datetime.strptime(date, '%Y-%m-%d'),
+            'date': datetime.strptime(date, '%Y-%m-%d'), # Falta hacerle la correccion de gmt-3
             'public': public
         })
 
