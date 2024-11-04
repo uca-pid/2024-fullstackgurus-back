@@ -8,7 +8,6 @@ from datetime import datetime
 
 physicalData_bp = Blueprint('physicalData_bp', __name__)
 
-# Endpoint para cargar cuánta agua tomé
 @physicalData_bp.route('/add', methods=['POST'])
 def add_physical_data():
     try:
@@ -42,7 +41,6 @@ def add_physical_data():
         print(f"Error adding physical data: {e}")
         return jsonify({"error": "Something went wrong"}), 500
 
-# Endpoint para ver cuánta agua tomé en el día
 @physicalData_bp.route('/get-physical-data', methods=['GET'])
 def get_physical_data():
     try:
