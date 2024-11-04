@@ -4,6 +4,8 @@ from app.services.user_service import verify_token_service
 from app.services.workout_service import save_user_workout, get_user_workouts, get_user_calories_from_workouts
 from app.services.exercise_service import get_exercise_by_id_service
 from app.services.trainings_service import get_training_by_id
+from app.services.workout_service import delete_user_workout
+
 
 workout_bp = Blueprint('workout_bp', __name__)
 
@@ -114,3 +116,21 @@ def get_workouts_calories():
     except Exception as e:
         print(e)
         return jsonify({'error': 'Algo salió mal'}), 500
+    
+
+@workout_bp.route('/cancel-workout/<workout_id>', methods=['DELETE'])
+def cancel_workout(workout_id):
+    try:
+        # Extract and validate the token
+        token = request.headers.get('Authorization').split(' ')[1]
+        uid = verify_token_service(token)
+        if uid is None:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        # Attempt to delete the workout
+        response, status_code = delete_user_workout(uid, workout_id)
+        return jsonify(response), status_code
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Something went wrong'}), 500

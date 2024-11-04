@@ -120,22 +120,24 @@ def get_user_calories_from_workouts(uid, start_date=None, end_date=None):
 
     return workout_calories_list, workout_dates_list, workout_training_id_list
 
-# MET_VALUES = {
-#     'Running': 12.5,
-#     'Weightlifting': 6.0,
-#     'Cycling': 10.0,
-#     'Swimming': 7.0,
-#     'Football': 7.0,
-#     'Basketball': 8.0,
-#     'Tennis': 4.0,
 
-# }
 
-# def calculate_calories(exercise, duration, weight):
-#     # Get the MET value for the given exercise
-#     met_value = MET_VALUES.get(exercise, 0)  # Default to 0 if exercise is not in the list
-    
-#     # Calculate calories burned using the formula
-#     calories_burned = (met_value * 3.5 * weight * duration) / 200
-    
-#     return round(calories_burned, 2)  # Round to 2 decimal places for better readability
+def delete_user_workout(uid, workout_id):
+    # Reference to the specific workout document
+    workout_ref = db.collection('workouts').document(uid).collection('user_workouts').document(workout_id)
+    workout_doc = workout_ref.get()
+
+    # Check if the workout exists
+    if not workout_doc.exists:
+        return {'error': 'Workout not found'}, 404
+
+    # Check if the workout date is in the future
+    workout_data = workout_doc.to_dict()
+    workout_date = workout_data['date'].replace(tzinfo=None)  # Ensure no timezone for comparison
+
+    if workout_date <= datetime.now():
+        return {'error': 'Cannot cancel past workouts'}, 400
+
+    # Delete the workout if it is scheduled for the future
+    workout_ref.delete()
+    return {'message': 'Workout cancelled successfully'}, 200
