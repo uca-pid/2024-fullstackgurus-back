@@ -45,4 +45,10 @@ def create_app():
     from app.controllers.water_controller import water_bp
     app.register_blueprint(water_bp, url_prefix='/api/water-intake')
 
+    from app.controllers.physicalData_controller import physicalData_bp
+    app.register_blueprint(physicalData_bp, url_prefix='/api/physical-data')
+
+    from app.controllers.challenges_controller import challenges_bp
+    app.register_blueprint(challenges_bp, url_prefix='/api/challenges')
+
     return app
