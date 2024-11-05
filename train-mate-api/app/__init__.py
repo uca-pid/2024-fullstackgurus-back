@@ -48,4 +48,7 @@ def create_app():
     from app.controllers.physicalData_controller import physicalData_bp
     app.register_blueprint(physicalData_bp, url_prefix='/api/physical-data')
 
+    from app.controllers.challenges_controller import challenges_bp
+    app.register_blueprint(challenges_bp, url_prefix='/api/challenges')
+
     return app
