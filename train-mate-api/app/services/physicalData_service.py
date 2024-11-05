@@ -1,5 +1,6 @@
 from firebase_setup import db
 from datetime import datetime
+from app.services.checkChallenges_service import check_and_update_physical_challenges
 
 def add_physical_data_service(uid, body_fat, body_muscle, weight, date):
     try:
@@ -22,6 +23,8 @@ def add_physical_data_service(uid, body_fat, body_muscle, weight, date):
             'body_fat': body_fat,
             'body_muscle': body_muscle,
         })
+        
+        check_and_update_physical_challenges(uid, date)
 
         return True
 
