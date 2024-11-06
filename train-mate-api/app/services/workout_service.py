@@ -3,6 +3,7 @@ from firebase_admin import firestore
 from firebase_setup import db
 from app.services.user_service import get_user_info_service
 from datetime import datetime
+from app.services.checkChallenges_service import check_and_update_workouts_challenges
 
 def save_user_workout(uid, data, calories_burned):
     user_ref = db.collection('workouts').document(uid)
@@ -45,6 +46,8 @@ def save_user_workout(uid, data, calories_burned):
         'total_calories': calories_burned,
         'coach': data['coach']
     }
+
+    check_and_update_workouts_challenges(uid)
 
     return saved_workout
 
