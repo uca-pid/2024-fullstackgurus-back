@@ -71,3 +71,114 @@ def check_and_update_physical_challenges(uid, date):
     except Exception as e:
         print(f"Error updating challenges: {e}")
         return False
+
+def check_and_update_workouts_challenges(uid):
+    try:
+        # Reference to user's workout and challenge data
+        user_workouts_ref = db.collection('workouts').document(uid).collection('user_workouts')
+        user_challenges_ref = db.collection('challenges').document(uid).collection('user_workouts_challenges')
+        
+        # Fetch workouts in the last 30 days
+        date_30_days_ago = datetime.now() - timedelta(days=30)
+        recent_workouts = user_workouts_ref.where('date', '>=', date_30_days_ago).stream()
+        workouts = list(recent_workouts)
+        
+        # Counters and accumulators
+        category_count = {}
+        coach_count = set()
+        unique_exercises = set()
+        total_calories = 0
+        total_workouts = len(workouts)
+        sports_duration = 0
+        long_duration_workouts = 0
+        
+        # Process each workout
+        for workout in workouts:
+            data = workout.to_dict()
+            total_calories += data.get('total_calories', 0)
+            coach_count.add(data.get('coach'))
+            if data.get('duration', 0) >= 120:
+                long_duration_workouts += 1
+            
+            # Fetch training details
+            training_id = data.get('training_id')
+            training_ref = db.collection('trainings').document(training_id)
+            training_doc = training_ref.get()
+            if training_doc.exists:
+                training_data = training_doc.to_dict()
+                
+                # Fetch exercises within the training
+                exercises = training_data.get('exercises', [])
+                for exercise_id in exercises:
+                    exercise_ref = db.collection('exercises').document(exercise_id)
+                    exercise_doc = exercise_ref.get()
+                    if exercise_doc.exists:
+                        exercise_data = exercise_doc.to_dict()
+                        unique_exercises.add(exercise_data.get('name'))
+                        
+                        # Accumulate sports duration
+                        category_id = exercise_data.get('category_id')
+                        category_ref = db.collection('categories').document(category_id)
+                        category_doc = category_ref.get()
+                        if category_doc.exists:
+                            category_data = category_doc.to_dict()
+                            category_name = category_data.get('name')
+                            category_count[category_name] = category_count.get(category_name, 0) + 1
+                            
+                            # Check if category is "Sports"
+                            if category_name == "Sports":
+                                sports_duration += data.get('duration', 0)
+        
+        # Challenge updates
+        challenge_updates = {}
+
+        # Challenge 1: Category Master
+        if len(category_count) >= 5:
+            challenge_updates["Category Master"] = True
+
+        # Challenge 2: Endurance Streak
+        if total_workouts >= 10 and all(
+            (workouts[i + 1].to_dict().get('date') - workouts[i].to_dict().get('date')).days == 1 
+            for i in range(len(workouts) - 1)
+        ):
+            challenge_updates["Endurance Streak"] = True
+
+        # Challenge 3: Strength Specialist
+        if category_count.get("Strength", 0) >= 20:
+            challenge_updates["Strength Specialist"] = True
+
+        # Challenge 4: Sports Enthusiast
+        if sports_duration >= 300:  # 5 hours in minutes
+            challenge_updates["Sports Enthusiast"] = True
+
+        # Challenge 5: Calorie Crusher
+        if total_calories >= 5000:
+            challenge_updates["Calorie Crusher"] = True
+
+        # Challenge 6: Fitness Variety
+        if len(unique_exercises) >= 10:
+            challenge_updates["Fitness Variety"] = True
+
+        # Challenge 7: Coach's Pick
+        if len(coach_count) >= 3:
+            challenge_updates["Coach's Pick"] = True
+
+        # Challenge 8: Long Haul
+        if long_duration_workouts > 0:
+            challenge_updates["Long Haul"] = True
+
+        # Challenge 9: Workout Titan
+        if total_workouts >= 30:
+            challenge_updates["Workout Titan"] = True
+
+        # Update challenges in Firestore
+        for challenge_name, completed in challenge_updates.items():
+            if completed:
+                challenge_query = user_challenges_ref.where('challenge', '==', challenge_name).limit(1).stream()
+                for challenge_doc in challenge_query:
+                    challenge_doc.reference.update({'state': True})
+        return True
+
+    except Exception as e:
+        print(f"Error updating workout challenges: {e}")
+        return False
