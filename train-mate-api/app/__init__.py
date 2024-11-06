@@ -51,4 +51,8 @@ def create_app():
     from app.controllers.challenges_controller import challenges_bp
     app.register_blueprint(challenges_bp, url_prefix='/api/challenges')
 
+    from app.controllers.goals_controller import goals_bp
+    app.register_blueprint(goals_bp, url_prefix='/api/goals')
+
+
     return app
