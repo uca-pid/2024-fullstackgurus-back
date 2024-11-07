@@ -1,4 +1,5 @@
 from firebase_setup import db
+from datetime import datetime, timedelta
 
 # Get all goals for a user
 def get_all_goals_service(uid):
@@ -16,7 +17,6 @@ def get_all_goals_service(uid):
         return None
 
 # Create a new goal
-from datetime import datetime
 
 
 def create_goal_service(uid, data):
@@ -39,6 +39,16 @@ def create_goal_service(uid, data):
                 raise ValueError("Invalid end date format. Use 'YYYY-MM-DD'.")
         else:
             end_date = None
+
+        # Check if dates are valid
+        yesterday = datetime.now() - timedelta(days=1)
+
+        if start_date and start_date < yesterday:
+            return {"error": "Start date cannot be in the past."}, 400
+        if end_date and end_date < yesterday:
+            return {"error": "End date cannot be in the past."}, 400
+        if start_date and end_date and end_date < start_date:
+            return {"error": "End date must be after start date."}, 400
 
         # Set up the goal document reference and data
         goal_ref = db.collection('goals').document(uid).collection('user_goals').document()

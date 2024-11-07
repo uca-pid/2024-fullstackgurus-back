@@ -47,6 +47,11 @@ def create_goal():
             return jsonify({"error": "Invalid data"}), 400
 
         goal = create_goal_service(uid, data)
+        
+        # Check if goal creation failed due to invalid data
+        if isinstance(goal, tuple) and goal[1] == 400:
+            return jsonify(goal[0]), 400
+
         if not goal:
             return jsonify({"error": "Failed to create goal"}), 500
 
@@ -55,6 +60,7 @@ def create_goal():
     except Exception as e:
         print(f"Error creating goal: {e}")
         return jsonify({"error": "Something went wrong"}), 500
+
 
 
 # Endpoint to get a specific goal
