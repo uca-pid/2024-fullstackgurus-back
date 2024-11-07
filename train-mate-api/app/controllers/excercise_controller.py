@@ -239,7 +239,7 @@ def get_exercises_by_category_id(category_id):
         if not uid:
             return jsonify({"error": "Invalid token"}), 403
         
-        exercises = get_exercise_by_category_id_service(category_id)
+        exercises = get_exercise_by_category_id_service(category_id, uid)
         return jsonify({"exercises": exercises}), 200
 
     except Exception as e:

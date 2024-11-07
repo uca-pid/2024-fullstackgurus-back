@@ -89,10 +89,10 @@ def get_all_exercises():
         print(f"Error getting all exercises: {e}")
         return []
 
-def get_exercise_by_category_id(category_id):
+def get_exercise_by_category_id(category_id, uid):
     try:
         exercises_ref = db.collection('exercises')
-        exercises = exercises_ref.where('category_id', '==', category_id).stream()
+        exercises = exercises_ref.where('category_id', '==', category_id).where('owner', 'in', [uid, 'default']).stream()
         exercises_with_id = [{**exercise.to_dict(), 'id': exercise.id } for exercise in exercises]
         return exercises_with_id
 
